@@ -418,3 +418,59 @@ footer a:hover{color:var(--text);text-decoration:underline}
   .brand i,.brand b{display:none}
   header{gap:8px}
 }
+
+/* =========================================================
+   Kullanılabilirlik eklemeleri
+   ========================================================= */
+.search kbd{
+  flex:none;font:600 11px/1 var(--body);color:var(--dim);padding:3px 6px;border-radius:5px;
+  border:1px solid var(--line2);background:var(--bg2);
+}
+.search:focus-within kbd{display:none}
+.filters>select{min-width:0}
+.filters{flex-wrap:wrap}
+.filters #categories{flex:1;min-width:0}
+.filters #categories button{display:inline-flex;align-items:center;gap:7px}
+.filters #categories button small{font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--panel3);color:var(--muted);font-variant-numeric:tabular-nums}
+.filters #categories button.active small{background:rgba(0,0,0,.12);color:#0b0d10}
+
+.weapon b .fav{font-style:normal;color:var(--warn);font-size:13px;vertical-align:1px}
+.weapon.is-gold .index{color:#e9c45c}
+.weapon.is-gold .track>i{background:var(--c-gold)}
+
+.detail-head>div:first-child{min-width:0}
+.head-actions{display:flex;gap:8px;flex:none}
+.detail-head .to-list{display:none;width:auto;height:42px;padding:0 12px;font-size:12px;white-space:nowrap}
+.next-step{
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--text);
+}
+.next-step span{
+  font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--accent-ink);background:var(--accent);
+  padding:3px 7px;border-radius:5px;
+}
+.next-step.done span{background:var(--c-divergence);color:#fff}
+
+.title-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+button.mini{font:600 11px/1 var(--body);padding:6px 10px;border-radius:7px;letter-spacing:0;text-transform:none}
+button.mini:hover{border-color:var(--accent);color:var(--accent)}
+
+.special-task.locked{opacity:.62}
+.special-task.locked:hover{opacity:1}
+.lock-badge{
+  display:inline-flex;align-items:center;gap:4px;margin-left:10px;vertical-align:4px;
+  font:700 10px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);padding:4px 7px;border-radius:5px;border:1px solid var(--line2);background:var(--panel);
+}
+.lock-badge::before{content:"";width:9px;height:9px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c98a7' stroke-width='3' stroke-linecap='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E")}
+
+@media (max-width:900px){
+  .detail-head .to-list{display:inline-flex;align-items:center}
+  #detail{scroll-margin-top:120px}
+  #weapons{scroll-margin-top:130px}
+  .filters{flex-direction:row;align-items:center}
+  .filters #categories{flex:1 0 100%}
+}
+@media (max-width:600px){
+  .search kbd{display:none}
+  .filters select{flex:1}
+}
