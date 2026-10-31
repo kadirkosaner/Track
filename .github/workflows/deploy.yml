@@ -1,0 +1,41 @@
+name: Deploy to Cloudflare Pages
+
+# main'e dist/ altında bir değişiklik geldiğinde siteyi yayınlar.
+# Gerekli repo secret'ları (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   — "Cloudflare Pages: Edit" izinli API token
+#   CLOUDFLARE_ACCOUNT_ID  — Cloudflare hesap kimliği
+# İsteğe bağlı repo variable: CF_PAGES_PROJECT (varsayılan: mw4-camo-kadir)
+
+on:
+  push:
+    branches: [main]
+    paths: ["dist/**", ".github/workflows/deploy.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'mw4-camo-kadir' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secret kontrolü
+        if: env.CF_TOKEN == ''
+        run: echo "::warning::CLOUDFLARE_API_TOKEN tanımlı değil; yayın atlandı."
+
+      - name: Cloudflare Pages'e yayınla
+        if: env.CF_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ env.PROJECT }} --branch=main --commit-dirty=true
