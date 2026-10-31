@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MW4 Camo Tracker</title>
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#090b0e; --bg2:#0e1216; --surface:#13181e; --surface2:#1a2028; --line:#242c36; --line2:#313b47;
+  --text:#e8edf3; --muted:#8693a3; --dim:#56616f;
+  --accent:#b6f23a; --accent-ink:#11180a; --danger:#ff5468;
+  --radius:12px;
+  --g-gold:linear-gradient(135deg,#6e4f0c 0%,#f7d774 45%,#fff2b8 55%,#b8862b 100%);
+  --g-plat:linear-gradient(135deg,#6f7b88 0%,#eef3f8 45%,#ffffff 55%,#9aa7b5 100%);
+  --g-hb:linear-gradient(135deg,#2b1055 0%,#7597de 50%,#d16ba5 100%);
+  --g-div:linear-gradient(135deg,#140010 0%,#c3002f 50%,#2a0040 100%);
+  --g-merc:linear-gradient(135deg,#3a4048 0%,#c9d2db 40%,#ffffff 50%,#5d6670 100%);
+  --g-poly:linear-gradient(135deg,#0f3d3e 0%,#3fe0c5 45%,#7a2cff 100%);
+  --g-orion:linear-gradient(135deg,#0b0b1f 0%,#5b2bff 35%,#ff3d6e 65%,#00e0ff 100%);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--text);
+  font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  min-height:100vh;
+  background-image:
+    radial-gradient(1200px 500px at 10% -10%, rgba(182,242,58,.07), transparent 60%),
+    radial-gradient(900px 400px at 100% 0%, rgba(91,43,255,.08), transparent 60%),
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size:auto,auto,32px 32px,32px 32px;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.h{font-family:"Barlow Condensed",Inter,sans-serif;letter-spacing:.02em;text-transform:uppercase}
+
+/* ---------- header ---------- */
+header.top{border-bottom:1px solid var(--line);background:rgba(9,11,14,.7);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20}
+.topbar{display:flex;align-items:center;gap:14px;height:62px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-family:"Barlow Condensed";font-size:18px;clip-path:polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)}
+.logo-text{font-size:22px;font-weight:700;line-height:1;white-space:nowrap}
+.logo-text small{display:block;font-size:11px;color:var(--muted);letter-spacing:.18em;font-weight:600;margin-top:3px}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:9px;border:1px solid var(--line2);background:var(--surface);font-weight:600;font-size:13px;white-space:nowrap;transition:.15s}
+.btn:hover{border-color:#455262;background:var(--surface2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger)}
+.icon{width:16px;height:16px;flex:none}
+.iconbtn{width:38px;padding:0;justify-content:center}
+
+/* ---------- hero / stats ---------- */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px 0 22px}
+.ring{position:relative;width:132px;height:132px}
+.ring svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring-label b{display:block;font-family:"Barlow Condensed";font-size:38px;line-height:1;font-weight:700}
+.ring-label span{font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.hero h1{margin:0 0 4px;font-size:34px;line-height:1.05}
+.hero p{margin:0 0 16px;color:var(--muted)}
+.tiers{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.tierstat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 10px 9px;min-width:0}
+.tierstat .sw{height:6px;border-radius:3px;margin-bottom:8px}
+.tierstat .nm{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tierstat .ct{font-family:"Barlow Condensed";font-size:20px;font-weight:700;line-height:1.1}
+.tierstat .ct small{color:var(--dim);font-size:14px}
+.tierstat.mastery{border-style:dashed}
+
+/* ---------- toolbar ---------- */
+.toolbar{position:sticky;top:62px;z-index:15;background:linear-gradient(var(--bg) 70%,transparent);padding:10px 0 12px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:8px}
+.tab:hover{color:var(--text)}
+.tab .n{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--surface2);color:var(--muted)}
+.tab.on{background:var(--text);color:#0b0d10;border-color:var(--text)}
+.tab.on .n{background:rgba(0,0,0,.12);color:#0b0d10}
+.filters{display:flex;gap:8px;align-items:center}
+.search{position:relative;flex:1;max-width:360px}
+.search input{width:100%;height:38px;border-radius:9px;border:1px solid var(--line2);background:var(--surface);padding:0 12px 0 36px;outline:none}
+.search input:focus{border-color:var(--accent)}
+.search .icon{position:absolute;left:12px;top:11px;color:var(--muted)}
+select.sel{height:38px;border-radius:9px;border:1px solid var(--line2);background:var(--surface);padding:0 10px;outline:none}
+
+/* ---------- grid / cards ---------- */
+.group{margin:8px 0 26px}
+.group-head{display:flex;align-items:baseline;gap:12px;margin:0 0 10px}
+.group-head h2{margin:0;font-size:20px}
+.group-head .meta{color:var(--muted);font-size:12px}
+.group-head .bar{flex:1;height:2px;background:var(--line);position:relative;top:-4px;border-radius:2px;overflow:hidden}
+.group-head .bar i{position:absolute;inset:0 auto 0 0;background:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 12px;overflow:hidden;transition:border-color .15s}
+.card:hover{border-color:var(--line2)}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--tier-bg,transparent);opacity:.9}
+.card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.card-title{flex:1;min-width:0}
+.card-title h3{margin:0;font-size:21px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-title .cls{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.cur{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--muted);padding:4px 8px 4px 4px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);white-space:nowrap}
+.cur .dot{width:16px;height:16px;border-radius:50%;background:var(--surface2)}
+.more{width:28px;height:28px;border-radius:7px;border:0;background:transparent;color:var(--muted);display:grid;place-items:center}
+.more:hover{background:var(--surface2);color:var(--text)}
+.row-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0 0 5px}
+.row-label b{color:var(--text);font-weight:600;letter-spacing:0;text-transform:none}
+.segs{display:grid;gap:4px;margin-bottom:10px}
+.segs.mil{grid-template-columns:repeat(8,1fr)}
+.segs.spec{grid-template-columns:repeat(3,1fr)}
+.seg{height:22px;border-radius:5px;border:1px solid var(--line2);background:var(--bg2);padding:0;font-size:10px;color:var(--dim);font-weight:600;transition:.12s}
+.seg:hover{border-color:var(--accent);color:var(--text)}
+.seg.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.segs.spec .seg.on{background:#7ee0ff;border-color:#7ee0ff;color:#06222b}
+.ladder{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:2px}
+.rung{position:relative;aspect-ratio:1;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);padding:0;display:grid;place-items:center;transition:.15s}
+.rung .sw{width:62%;height:62%;border-radius:50%;background:var(--g);opacity:.22;filter:grayscale(.6);transition:.15s}
+.rung.on{border-color:transparent;background:var(--g)}
+.rung.on .sw{opacity:0}
+.rung.on::after{content:"";position:absolute;width:40%;height:40%;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");opacity:.75}
+.rung.next{border-color:#5a6676}
+.rung.next .sw{opacity:.7;filter:none}
+.rung:not(:disabled):hover{transform:translateY(-1px);border-color:#7b8796}
+.rung:disabled{cursor:not-allowed;opacity:.45}
+.rung.mastery{border-style:dashed}
+.rung.mastery.on{border-style:solid}
+.progress{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:11px;color:var(--muted)}
+.progress .track{flex:1;height:4px;border-radius:2px;background:var(--bg2);overflow:hidden}
+.progress .track i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .25s}
+.card.complete{border-color:rgba(195,0,47,.45)}
+
+.tip{position:fixed;z-index:60;pointer-events:none;background:#000;color:#fff;font-size:12px;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.tip.show{opacity:1;transform:none}
+
+/* ---------- empty ---------- */
+.empty{border:1px dashed var(--line2);border-radius:16px;padding:44px 20px;text-align:center;margin:20px 0 60px;background:rgba(19,24,30,.6)}
+.empty h2{margin:0 0 6px;font-size:28px}
+.empty p{color:var(--muted);margin:0 auto 18px;max-width:460px}
+.empty .btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- menu / modal ---------- */
+.menu{position:fixed;z-index:50;min-width:200px;background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:5px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:none}
+.menu.open{display:block}
+.menu button,.menu label{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;background:transparent;border-radius:7px;text-align:left;font-size:13px;cursor:pointer}
+.menu button:hover,.menu label:hover{background:var(--line)}
+.menu hr{border:0;border-top:1px solid var(--line2);margin:5px 0}
+.menu .danger{color:var(--danger)}
+.switch{margin-left:auto;width:30px;height:18px;border-radius:9px;background:var(--line2);position:relative;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.15s}
+.switch.on{background:var(--accent)}
+.switch.on::after{left:14px;background:var(--accent-ink)}
+
+dialog{border:1px solid var(--line2);border-radius:16px;background:var(--surface);color:var(--text);padding:0;width:min(520px,calc(100vw - 32px));box-shadow:0 30px 80px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(3px)}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
+.dlg-h h3{margin:0;font-size:22px}
+.dlg-b{padding:16px 18px;display:grid;gap:14px}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--line)}
+.field{display:grid;gap:6px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{height:40px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);padding:0 12px;outline:none;width:100%}
+.field textarea{height:150px;padding:10px 12px;resize:vertical;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.hint{font-size:12px;color:var(--dim)}
+.seg-ctl{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:3px;gap:3px}
+.seg-ctl button{height:32px;border:0;border-radius:7px;background:transparent;color:var(--muted);font-weight:600;font-size:13px}
+.seg-ctl button.on{background:var(--surface2);color:var(--text)}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--text);color:#0b0d10;font-weight:600;font-size:13px;padding:10px 16px;border-radius:10px;opacity:0;transition:.2s;z-index:70;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+footer{color:var(--dim);font-size:12px;padding:10px 0 40px;text-align:center}
+
+@media (max-width:980px){
+  .tiers{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:680px){
+  .hero{grid-template-columns:1fr;gap:16px;padding:20px 0 14px}
+  .hero-top{display:flex;align-items:center;gap:16px}
+  .ring{width:96px;height:96px}
+  .ring svg{width:96px;height:96px}
+  .ring-label b{font-size:28px}
+  .hero h1{font-size:26px}
+  .tiers{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .btn .lbl{display:none}
+  .btn.primary .lbl{display:inline}
+  .grid{grid-template-columns:1fr}
+  .filters select.sel{max-width:130px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap topbar">
+    <div class="logo">
+      <div class="logo-mark">MW</div>
+      <div class="logo-text h">Camo Tracker<small>MODERN WARFARE 4</small></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn primary" id="addBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Silah ekle</span></button>
+    <button class="btn iconbtn" id="menuBtn" aria-label="Menü"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-top">
+      <div class="ring">
+        <svg width="132" height="132" viewBox="0 0 132 132">
+          <circle cx="66" cy="66" r="56" fill="none" stroke="#1a2028" stroke-width="10"/>
+          <circle id="ringArc" cx="66" cy="66" r="56" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="351.86" stroke-dashoffset="351.86" style="transition:stroke-dashoffset .4s"/>
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6f23a"/><stop offset="1" stop-color="#3fe0c5"/></linearGradient></defs>
+        </svg>
+        <div class="ring-label"><div><b id="pct">0%</b><span>Toplam</span></div></div>
+      </div>
+      <div class="hero-mobile-title"></div>
+    </div>
+    <div>
+      <h1 class="h">Kamuflaj İlerlemesi</h1>
+      <p id="summary">Silah ekleyerek başla.</p>
+      <div class="tiers" id="tierStats"></div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="tabs" id="tabs"></div>
+    <div class="filters">
+      <div class="search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Silah ara…" autocomplete="off">
+      </div>
+      <select class="sel" id="status">
+        <option value="all">Tümü</option>
+        <option value="progress">Devam eden</option>
+        <option value="todo">Başlanmamış</option>
+        <option value="done">Divergence ✓</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="content"></div>
+</main>
+
+<footer class="wrap">İlerleme bu tarayıcıda saklanır. Yedek almak için menüden <b>Dışa aktar</b>'ı kullan.</footer>
+
+<!-- menu -->
+<div class="menu" id="menu">
+  <button data-act="lock"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Sıralı kilit<span class="switch" id="lockSw"></span></button>
+  <hr>
+  <button data-act="export"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Dışa aktar (JSON)</button>
+  <label><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></svg>İçe aktar<input type="file" id="importFile" accept="application/json,.json" hidden></label>
+  <hr>
+  <button data-act="reset" class="danger"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>İlerlemeyi sıfırla</button>
+  <button data-act="wipe" class="danger"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Tüm silahları sil</button>
+</div>
+
+<div class="menu" id="cardMenu">
+  <button data-act="rename">Yeniden adlandır</button>
+  <button data-act="max">Divergence'a kadar tamamla</button>
+  <button data-act="clear">Bu silahı sıfırla</button>
+  <hr>
+  <button data-act="delete" class="danger">Silahı sil</button>
+</div>
+
+<!-- add dialog -->
+<dialog id="addDlg">
+  <form method="dialog" id="addForm">
+    <div class="dlg-h"><h3 class="h" id="addTitle">Silah ekle</h3><button class="more" value="cancel" aria-label="Kapat">✕</button></div>
+    <div class="dlg-b">
+      <div class="seg-ctl" id="addMode"><button type="button" data-m="single" class="on">Tek silah</button><button type="button" data-m="bulk">Toplu ekle</button></div>
+      <div class="field" id="fName"><label for="wName">Silah adı</label><input id="wName" maxlength="40" placeholder="ör. M4"></div>
+      <div class="field" id="fBulk" hidden><label for="wBulk">Her satıra bir silah</label><textarea id="wBulk" placeholder="M4&#10;AK-47&#10;…"></textarea><div class="hint">Hepsi aşağıda seçtiğin sınıfa eklenir.</div></div>
+      <div class="field"><label for="wCls">Sınıf</label><select id="wCls"></select></div>
+    </div>
+    <div class="dlg-f"><button class="btn ghost" value="cancel">Vazgeç</button><button class="btn primary" value="ok" id="addOk">Ekle</button></div>
+  </form>
+</dialog>
+
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= CONFIG — oyun içi isimleri burada düzenleyebilirsin ================= */
+const MIL = 8;   // askeri kamuflaj sayısı (silah başına)
+const SPEC = 3;  // özel kamuflaj sayısı (silah başına)
+const TIERS = [
+  {name:"Gold",                g:"var(--g-gold)"},
+  {name:"Platinum",            g:"var(--g-plat)"},
+  {name:"Harmonic Break",      g:"var(--g-hb)"},
+  {name:"Divergence",          g:"var(--g-div)"},
+  {name:"Mercurial Drift",     g:"var(--g-merc)",  mastery:true},
+  {name:"Polyatomic Reforged", g:"var(--g-poly)",  mastery:true},
+  {name:"Orion Reforged",      g:"var(--g-orion)", mastery:true},
+];
+const COMPLETION = TIERS.findIndex(t => t.mastery); // mastery öncesi son kademe sayısı (=4)
+const CLASSES = [
+  {key:"ar",       name:"Taarruz Tüfeği"},
+  {key:"smg",      name:"Hafif Makineli"},
+  {key:"shotgun",  name:"Pompalı"},
+  {key:"lmg",      name:"Ağır Makineli"},
+  {key:"marksman", name:"Nişancı Tüfeği"},
+  {key:"sniper",   name:"Keskin Nişancı"},
+  {key:"pistol",   name:"Tabanca"},
+  {key:"launcher", name:"Roketatar"},
+  {key:"melee",    name:"Yakın Dövüş"},
+];
+const STEPS = MIL + SPEC + TIERS.length;
+const KEY = "mw4-camo-tracker-v1";
+
+/* ================= STATE ================= */
+let state = load();
+let view = {cls:"all", q:"", status:"all"};
+let menuTarget = null, renameId = null;
+
+function blank(){ return {v:1, lock:true, weapons:[]}; }
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if(s && Array.isArray(s.weapons)) return sanitize(s);
+  }catch(e){}
+  return blank();
+}
+function sanitize(s){
+  const clamp=(n,max)=>Math.max(0,Math.min(max,Number(n)||0));
+  return {v:1, lock:s.lock!==false, weapons:s.weapons.filter(w=>w&&w.name).map(w=>({
+    id:String(w.id||uid()), name:String(w.name).slice(0,40),
+    cls:CLASSES.some(c=>c.key===w.cls)?w.cls:CLASSES[0].key,
+    mil:clamp(w.mil,MIL), spec:clamp(w.spec,SPEC), tier:clamp(w.tier,TIERS.length)
+  }))};
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clsName = k => (CLASSES.find(c=>c.key===k)||{}).name || k;
+
+/* ================= RULES ================= */
+const allDivergence = () => state.weapons.length>0 && state.weapons.every(w=>w.tier>=COMPLETION);
+function canSetTier(w, j){ // j: 1-based tier
+  if(!state.lock) return true;
+  if(w.mil<MIL || w.spec<SPEC) return false;
+  if(j > w.tier+1) return false;
+  if(TIERS[j-1].mastery && !allDivergence()) return false;
+  return true;
+}
+function lockReason(w, j){
+  if(w.mil<MIL || w.spec<SPEC) return "Önce tüm askeri ve özel kamuflajlar";
+  if(j > w.tier+1) return "Önce " + TIERS[j-2].name;
+  if(TIERS[j-1].mastery && !allDivergence()) return "Tüm silahlarda Divergence gerekli";
+  return "";
+}
+function enforce(w){
+  if(state.lock && (w.mil<MIL || w.spec<SPEC)) w.tier = 0;
+}
+
+/* ================= RENDER ================= */
+function render(){
+  renderStats(); renderTabs(); renderList();
+  $("#lockSw").classList.toggle("on", state.lock);
+}
+
+function renderStats(){
+  const ws = state.weapons, n = ws.length;
+  const done = ws.reduce((a,w)=>a+w.mil+w.spec+w.tier,0);
+  const pct = n ? Math.round(done/(n*STEPS)*100) : 0;
+  $("#pct").textContent = pct+"%";
+  const C = 351.86; $("#ringArc").style.strokeDashoffset = C - C*pct/100;
+  const div = ws.filter(w=>w.tier>=COMPLETION).length;
+  $("#summary").textContent = n
+    ? `${n} silah · ${div}/${n} Divergence · ${ws.filter(w=>w.mil+w.spec+w.tier===0).length} başlanmamış`
+    : "Henüz silah yok — sağ üstten ekleyerek başla.";
+  $("#tierStats").innerHTML = TIERS.map((t,i)=>{
+    const c = ws.filter(w=>w.tier>i).length;
+    return `<div class="tierstat${t.mastery?" mastery":""}"><div class="sw" style="background:${t.g}"></div>
+      <div class="nm" title="${esc(t.name)}">${esc(t.name)}</div><div class="ct">${c}<small>/${n}</small></div></div>`;
+  }).join("");
+}
+
+function renderTabs(){
+  const count = k => state.weapons.filter(w=>k==="all"||w.cls===k).length;
+  const tabs = [{key:"all",name:"Tümü"}, ...CLASSES.filter(c=>count(c.key)>0)];
+  if(!tabs.some(t=>t.key===view.cls)) view.cls="all";
+  $("#tabs").innerHTML = tabs.map(t=>`<button class="tab${view.cls===t.key?" on":""}" data-cls="${t.key}">${esc(t.name)}<span class="n">${count(t.key)}</span></button>`).join("");
+}
+
+function matches(w){
+  if(view.cls!=="all" && w.cls!==view.cls) return false;
+  if(view.q && !w.name.toLowerCase().includes(view.q)) return false;
+  const s = w.mil+w.spec+w.tier;
+  if(view.status==="done" && w.tier<COMPLETION) return false;
+  if(view.status==="todo" && s>0) return false;
+  if(view.status==="progress" && (s===0 || w.tier>=COMPLETION)) return false;
+  return true;
+}
+
+function renderList(){
+  const el = $("#content");
+  if(!state.weapons.length){
+    el.innerHTML = `<div class="empty"><h2 class="h">Cephaneliğin boş</h2>
+      <p>Takip etmek istediğin silahları ekle. Tek tek ya da sınıf sınıf toplu olarak girebilirsin; ilerlemen bu tarayıcıda otomatik kaydedilir.</p>
+      <div class="btns"><button class="btn primary" data-open="single">Silah ekle</button><button class="btn" data-open="bulk">Toplu ekle</button></div></div>`;
+    return;
+  }
+  const groups = CLASSES.map(c=>({c, ws:state.weapons.filter(w=>w.cls===c.key&&matches(w)).sort((a,b)=>a.name.localeCompare(b.name,"tr"))})).filter(g=>g.ws.length);
+  if(!groups.length){ el.innerHTML = `<div class="empty"><h2 class="h">Sonuç yok</h2><p>Filtreleri değiştirmeyi dene.</p></div>`; return; }
+  el.innerHTML = groups.map(({c,ws})=>{
+    const all = state.weapons.filter(w=>w.cls===c.key);
+    const d = all.filter(w=>w.tier>=COMPLETION).length;
+    return `<section class="group"><div class="group-head"><h2 class="h">${esc(c.name)}</h2><span class="meta">${d}/${all.length} Divergence</span><span class="bar"><i style="width:${all.length?d/all.length*100:0}%"></i></span></div>
+      <div class="grid">${ws.map(card).join("")}</div></section>`;
+  }).join("");
+}
+
+function card(w){
+  const cur = w.tier ? TIERS[w.tier-1] : null;
+  const p = Math.round((w.mil+w.spec+w.tier)/STEPS*100);
+  const segs = (n, val, kind) => Array.from({length:n},(_,i)=>`<button class="seg${i<val?" on":""}" data-k="${kind}" data-i="${i+1}" aria-label="${kind==="mil"?"Askeri":"Özel"} ${i+1}">${i+1}</button>`).join("");
+  const rungs = TIERS.map((t,i)=>{
+    const j=i+1, on=w.tier>=j, ok=on||canSetTier(w,j), next=!on&&ok&&j===w.tier+1;
+    const tip = t.name + (on?" ✓":ok?"":" — "+lockReason(w,j));
+    return `<button class="rung${on?" on":""}${next?" next":""}${t.mastery?" mastery":""}" style="--g:${t.g}" data-k="tier" data-i="${j}" data-tip="${esc(tip)}" aria-label="${esc(tip)}" ${ok?"":"disabled"}><span class="sw"></span></button>`;
+  }).join("");
+  return `<article class="card${w.tier>=COMPLETION?" complete":""}" data-id="${w.id}" style="--tier-bg:${cur?cur.g:"transparent"}">
+    <div class="card-head">
+      <div class="card-title"><h3 class="h">${esc(w.name)}</h3><div class="cls">${esc(clsName(w.cls))}</div></div>
+      <div class="cur"><span class="dot" style="${cur?"background:"+cur.g:""}"></span>${cur?esc(cur.name):"Başlanmadı"}</div>
+      <button class="more" data-menu aria-label="Silah menüsü"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+    </div>
+    <div class="row-label">Askeri<b>${w.mil}/${MIL}</b></div><div class="segs mil">${segs(MIL,w.mil,"mil")}</div>
+    <div class="row-label">Özel<b>${w.spec}/${SPEC}</b></div><div class="segs spec">${segs(SPEC,w.spec,"spec")}</div>
+    <div class="row-label">Ustalık<b>${cur?esc(cur.name):"—"}</b></div><div class="ladder">${rungs}</div>
+    <div class="progress"><span class="track"><i style="width:${p}%"></i></span>${p}%</div>
+  </article>`;
+}
+
+/* ================= EVENTS ================= */
+const findW = id => state.weapons.find(w=>w.id===id);
+function commit(msg){ save(); render(); if(msg) toast(msg); }
+
+$("#content").addEventListener("click", e=>{
+  const open = e.target.closest("[data-open]"); if(open) return openAdd(open.dataset.open);
+  const cardEl = e.target.closest(".card"); if(!cardEl) return;
+  const w = findW(cardEl.dataset.id);
+  if(e.target.closest("[data-menu]")) return openMenu($("#cardMenu"), e.target.closest("[data-menu]"), w.id);
+  const b = e.target.closest("[data-k]"); if(!b || b.disabled) return;
+  const k=b.dataset.k, i=+b.dataset.i;
+  if(k==="tier"){
+    w.tier = (w.tier===i) ? i-1 : i;
+    // Bir silah Divergence altına düşerse diğerlerindeki mastery kilitlenir
+    if(state.lock && !allDivergence()) state.weapons.forEach(x=>{ if(x.tier>COMPLETION) x.tier=COMPLETION; });
+    commit(w.tier===i && i===COMPLETION ? `${w.name}: Divergence 🎉` : null);
+    return;
+  }
+  w[k] = (w[k]===i) ? i-1 : i;
+  enforce(w);
+  if(state.lock && !allDivergence()) state.weapons.forEach(x=>{ if(x.tier>COMPLETION) x.tier=COMPLETION; });
+  commit();
+});
+
+$("#tabs").addEventListener("click", e=>{ const t=e.target.closest("[data-cls]"); if(!t) return; view.cls=t.dataset.cls; renderTabs(); renderList(); });
+$("#q").addEventListener("input", e=>{ view.q=e.target.value.trim().toLowerCase(); renderList(); });
+$("#status").addEventListener("change", e=>{ view.status=e.target.value; renderList(); });
+
+/* tooltip */
+const tip=$("#tip");
+document.addEventListener("pointerover", e=>{
+  const t=e.target.closest("[data-tip]"); if(!t){ tip.classList.remove("show"); return; }
+  tip.textContent=t.dataset.tip; const r=t.getBoundingClientRect();
+  tip.classList.add("show");
+  const tw=tip.offsetWidth; let x=r.left+r.width/2-tw/2; x=Math.max(8,Math.min(innerWidth-tw-8,x));
+  tip.style.left=x+"px"; tip.style.top=(r.top-tip.offsetHeight-8)+"px";
+});
+addEventListener("scroll", ()=>tip.classList.remove("show"), {passive:true});
+
+/* menus */
+function openMenu(m, anchor, target){
+  closeMenus(); menuTarget=target; m.classList.add("open");
+  const r=anchor.getBoundingClientRect(), mw=m.offsetWidth, mh=m.offsetHeight;
+  let x=r.right-mw, y=r.bottom+6; if(y+mh>innerHeight-8) y=r.top-mh-6;
+  m.style.left=Math.max(8,x)+"px"; m.style.top=Math.max(8,y)+"px";
+}
+function closeMenus(){ document.querySelectorAll(".menu.open").forEach(m=>m.classList.remove("open")); }
+document.addEventListener("click", e=>{ if(!e.target.closest(".menu,[data-menu],#menuBtn")) closeMenus(); });
+addEventListener("keydown", e=>{ if(e.key==="Escape") closeMenus(); });
+$("#menuBtn").addEventListener("click", e=>{ const m=$("#menu"); m.classList.contains("open")?closeMenus():openMenu(m,e.currentTarget); });
+
+$("#menu").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-act]"); if(!b) return;
+  const a=b.dataset.act;
+  if(a==="lock"){ state.lock=!state.lock; if(state.lock){ state.weapons.forEach(enforce); if(!allDivergence()) state.weapons.forEach(x=>{ if(x.tier>COMPLETION) x.tier=COMPLETION; }); } commit(state.lock?"Sıralı kilit açık":"Sıralı kilit kapalı — istediğin kamuflajı işaretleyebilirsin"); return; }
+  closeMenus();
+  if(a==="export"){
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    const u=URL.createObjectURL(blob), l=document.createElement("a");
+    l.href=u; l.download=`mw4-camo-${new Date().toISOString().slice(0,10)}.json`; l.click(); setTimeout(()=>URL.revokeObjectURL(u),1000);
+    toast("Yedek indirildi");
+  }
+  if(a==="reset" && state.weapons.length && confirm("Tüm silahlardaki ilerleme sıfırlansın mı? Silah listesi kalır.")){ state.weapons.forEach(w=>{w.mil=0;w.spec=0;w.tier=0;}); commit("İlerleme sıfırlandı"); }
+  if(a==="wipe" && state.weapons.length && confirm("Tüm silahlar ve ilerleme silinsin mi? Bu geri alınamaz.")){ state.weapons=[]; commit("Liste temizlendi"); }
+});
+$("#importFile").addEventListener("change", async e=>{
+  const f=e.target.files[0]; e.target.value=""; closeMenus(); if(!f) return;
+  try{ const s=JSON.parse(await f.text()); if(!s||!Array.isArray(s.weapons)) throw 0; state=sanitize(s); commit(`${state.weapons.length} silah içe aktarıldı`); }
+  catch(_){ toast("Dosya okunamadı — geçerli bir yedek seç"); }
+});
+
+$("#cardMenu").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-act]"); if(!b) return;
+  const w=findW(menuTarget); closeMenus(); if(!w) return;
+  const a=b.dataset.act;
+  if(a==="rename") openAdd("single", w);
+  if(a==="max"){ w.mil=MIL; w.spec=SPEC; w.tier=Math.max(w.tier,COMPLETION); commit(`${w.name}: Divergence 🎉`); }
+  if(a==="clear"){ w.mil=0; w.spec=0; w.tier=0; if(state.lock) state.weapons.forEach(x=>{ if(x.tier>COMPLETION) x.tier=COMPLETION; }); commit(`${w.name} sıfırlandı`); }
+  if(a==="delete" && confirm(`${w.name} silinsin mi?`)){ state.weapons=state.weapons.filter(x=>x!==w); commit("Silah silindi"); }
+});
+
+/* add / rename dialog */
+const dlg=$("#addDlg"); let addMode="single";
+$("#wCls").innerHTML = CLASSES.map(c=>`<option value="${c.key}">${esc(c.name)}</option>`).join("");
+function setMode(m){
+  addMode=m; document.querySelectorAll("#addMode button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  $("#fName").hidden = m!=="single"; $("#fBulk").hidden = m!=="bulk";
+}
+$("#addMode").addEventListener("click", e=>{ const b=e.target.closest("[data-m]"); if(b){ setMode(b.dataset.m); (b.dataset.m==="bulk"?$("#wBulk"):$("#wName")).focus(); } });
+function openAdd(mode="single", w=null){
+  renameId = w ? w.id : null;
+  $("#addTitle").textContent = w ? "Silahı düzenle" : "Silah ekle";
+  $("#addOk").textContent = w ? "Kaydet" : "Ekle";
+  $("#addMode").hidden = !!w;
+  setMode(w ? "single" : mode);
+  $("#wName").value = w ? w.name : ""; $("#wBulk").value = "";
+  $("#wCls").value = w ? w.cls : (view.cls!=="all" ? view.cls : $("#wCls").value);
+  dlg.showModal(); (addMode==="bulk"?$("#wBulk"):$("#wName")).focus();
+}
+$("#addBtn").addEventListener("click", ()=>openAdd());
+$("#addForm").addEventListener("submit", e=>{
+  if(e.submitter && e.submitter.value!=="ok") return;
+  const cls=$("#wCls").value;
+  if(renameId){
+    const w=findW(renameId), name=$("#wName").value.trim();
+    if(!name){ e.preventDefault(); return; }
+    w.name=name.slice(0,40); w.cls=cls; commit("Kaydedildi"); return;
+  }
+  const names = (addMode==="bulk" ? $("#wBulk").value.split(/\r?\n/) : [$("#wName").value]).map(s=>s.trim()).filter(Boolean);
+  if(!names.length){ e.preventDefault(); return; }
+  const existing = new Set(state.weapons.map(w=>w.name.toLowerCase()));
+  let added=0;
+  names.forEach(n=>{ if(existing.has(n.toLowerCase())) return; existing.add(n.toLowerCase()); state.weapons.push({id:uid(),name:n.slice(0,40),cls,mil:0,spec:0,tier:0}); added++; });
+  if(state.lock && !allDivergence()) state.weapons.forEach(x=>{ if(x.tier>COMPLETION) x.tier=COMPLETION; });
+  commit(added ? `${added} silah eklendi` : "Bu silahlar zaten listede");
+});
+
+let tt; function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("show"),2200); }
+
+render();
+</script>
+</body>
+</html>
